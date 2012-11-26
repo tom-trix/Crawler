@@ -16,7 +16,7 @@ import com.mongodb.casbah.Imports._
 import ru.tomtrix.xpathparser.XPathParser
 import org.dom4j.tree.DefaultElement
 
-/**
+/** Crawler (http://sport.rbc.ru)
  * @author tom-trix
  */
 object Crawler {

@@ -3,7 +3,7 @@ package ru.tomtrix.dm.crawler
 import com.mongodb.casbah.MongoConnection
 import org.tartarus.snowball.ext.russianStemmer
 
-/**
+/** Common resources
  * @author tom-trix
  */
 object Common {

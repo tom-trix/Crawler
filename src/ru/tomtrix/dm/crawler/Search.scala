@@ -4,7 +4,7 @@ import com.mongodb.BasicDBList
 import ru.tomtrix.dm.crawler.Common._
 import com.mongodb.casbah.commons.MongoDBObject
 
-/**
+/** Search engine
  * @author tom-trix
  */
 object Search {
