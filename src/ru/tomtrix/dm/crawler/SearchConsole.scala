@@ -1,10 +1,5 @@
 package ru.tomtrix.dm.crawler
 
-import com.mongodb.BasicDBList
-import ru.tomtrix.dm.crawler.Common._
-import com.mongodb.casbah.commons.MongoDBObject
-import java.util.Date
-
 /**
  * @author tom-trix
  *

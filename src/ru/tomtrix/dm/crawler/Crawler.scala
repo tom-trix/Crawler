@@ -1,13 +1,16 @@
 /**
- * === Libraries for MongoDB ===
- * casbah-commons
- * casbah-core
- * casbah-gridfs
- * casbah-query
- * scalaj-collection
- * mongo-java-driver
- * joda-time
- * slf4j-api
+ * ========== Libraries ==========
+ * casbah-commons		=> MongoDB
+ * casbah-core			=> MongoDB
+ * casbah-gridfs		=> MongoDB
+ * casbah-query			=> MongoDB
+ * scalaj-collection	=> MongoDB
+ * mongo-java-driver	=> MongoDB
+ * joda-time			=> MongoDB
+ * slf4j-api			=> MongoDB
+ * jedis				=> RedisDB
+ * snowball				=> Snowball
+ * xpathparser			=> My xPath-Wrapper
  */
 package ru.tomtrix.dm.crawler
 
