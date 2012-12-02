@@ -4,7 +4,8 @@ import com.mongodb.BasicDBList
 import ru.tomtrix.dm.crawler.Common._
 import com.mongodb.casbah.commons.MongoDBObject
 
-/** Search engine
+/**
+ * Search engine
  * @author tom-trix
  */
 object Search {
@@ -15,30 +16,35 @@ object Search {
             var mode = readLine
             if (mode == "1" || mode == "2" || mode == "3") {
 
-                //get list of searching words
+                //read it
                 print("input searching string: ")
-                val words = readLine.split(splitRegex).toList map { _.toLowerCase } filter (t => !t.trim.isEmpty && !stopWords.contains(t)) map { stem(_) }
+                val s = readLine
+                //get list of searching words
+                val words = s.split(splitRegex).toList map { _.toLowerCase } filter (t => !t.trim.isEmpty && !stopWords.contains(t)) map { stem(_) }
+                //get list of boolean values (true, if searched, false, if excluded)
+                val incls = s.split(splitRegexWithoutExc).toList filter (t => !t.trim.isEmpty && !stopWords.contains(t)) map { !_.startsWith("!") }
                 println(">> trying to find: " + words);
+                println(">> included in search: " + incls);
 
-                //query to the Reverse Index
+                //query to the Reverse Index (obtain map: is_included -> occurences)
                 val occurencesList = for {
-                    word <- words
-                    bson <- mongoWords.find(MongoDBObject("word" -> word))
-                    occurences <- try { Some(bson.get("docs").asInstanceOf[BasicDBList].toArray.toList map { _.asInstanceOf[Int] }) }
+                    word <- words zip incls
+                    bson <- mongoWords.find(MongoDBObject("word" -> word._1))
+                    occurences <- try { Some(word._2 -> bson.get("docs").asInstanceOf[BasicDBList].toArray.toList.map { _.asInstanceOf[Int] }) }
                 } yield {
-                    println(""">> word """" + word + """" found in: """ + occurences);
+                    println(""">> word """" + word._1 + """" found in: """ + occurences._2);
                     occurences
                 }
                 println(">> found words: " + occurencesList.size + "/" + words.size)
 
-                //get the final list depending on should it be united or intersected from the others
+                //get the final list depending on should it be united or intersected
                 val finalList = if (occurencesList.size > 0) mode match {
                     case "1" =>
                         if (occurencesList.size == words.size)
-                            occurencesList.foldLeft(occurencesList(0)) { (a, b) => a intersect b }
+                            occurencesList.foldLeft(occurencesList(0)._2) { (a, b) => if (b._1) a intersect b._2 else a -- b._2 }
                         else List.empty
-                    case "2" => occurencesList.foldLeft(occurencesList(0)) { (a, b) => a intersect b }
-                    case "3" => occurencesList.foldLeft(occurencesList(0)) { (a, b) => a ++ b } distinct
+                    case "2" => occurencesList.foldLeft(occurencesList(0)._2) { (a, b) => if (b._1) a intersect b._2 else a -- b._2 }
+                    case "3" => occurencesList.foldLeft(occurencesList(0)._2) { (a, b) => if (b._1) a ++ b._2 else a -- b._2 } distinct
                     case _ => List.empty
                 }
                 else List.empty

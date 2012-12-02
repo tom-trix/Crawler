@@ -47,9 +47,9 @@ object Crawler {
         val xpath = List("[2]/*", "[3]/*", "[4]") map (s + _)
         for {
             i <- startArticle to endArticle
-            docs <- parse(i, xpath(0))
-            tags <- parse(i, xpath(1))
-            prse <- parse(i, xpath(2))
+            docs <- parse(i, xpath(0)) 		//список абзацев статьи
+            tags <- parse(i, xpath(1))		//список тегов
+            prse <- parse(i, xpath(2))		//дата
             date <- Some(prse(0) split (" "))
         } yield {
             //добавляем статью в коллекцию документов

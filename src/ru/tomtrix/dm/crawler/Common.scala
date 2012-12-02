@@ -17,6 +17,7 @@ object Common {
     val mongoKeywords = MongoConnection(host)(db)("keywords")
     val mongoWords = MongoConnection(host)(db)("words")
     val splitRegex = "[\\. \n\r\t)(;,:\"–—?!\\-]"
+    val splitRegexWithoutExc = "[\\. \n\r\t)(;,:\"–—?\\-]"
 
     def stem(word: String) = {
         stemmer setCurrent (word)
