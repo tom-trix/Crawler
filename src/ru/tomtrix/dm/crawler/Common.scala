@@ -1,3 +1,24 @@
+/**
+ * ========= Description =========
+ * this project combines:
+ * 1) crawler (to MongoDB)
+ * 2) searcher (based on MongoDB)
+ * 3) data importer (MongoDB -> Redis)
+ * 4) speed tester (MongoDB vs. Redis)
+ * 
+ * ========== Libraries ==========
+ * casbah-commons		=> MongoDB
+ * casbah-core			=> MongoDB
+ * casbah-gridfs		=> MongoDB
+ * casbah-query			=> MongoDB
+ * scalaj-collection	=> MongoDB
+ * mongo-java-driver	=> MongoDB
+ * joda-time			=> MongoDB
+ * slf4j-api			=> MongoDB
+ * jedis				=> RedisDB
+ * snowball				=> Snowball
+ * xpathparser			=> My xPath-Wrapper, based on jaxen, cyberneko, dom4j & xerces
+ */
 package ru.tomtrix.dm.crawler
 
 import com.mongodb.casbah.MongoConnection
@@ -19,6 +40,8 @@ object Common {
     val splitRegex = "[\\. \n\r\t)(;,:\"–—?!\\-]"
     val splitRegexWithoutExc = "[\\. \n\r\t)(;,:\"–—?\\-]"
 
+    /** @param word
+     * @return stemmed word (яблоками -> яблок) */
     def stem(word: String) = {
         stemmer setCurrent (word)
         stemmer.stem

@@ -1,8 +1,8 @@
-package ru.tomtrix.dm.crawler
+package ru.tomtrix.dm.crawler.search
 
 /**
  * @author tom-trix
- *
+ * Entry point to the search engine based on MongoDB
  */
 object SearchConsole {
     def main(args: Array[String]): Unit =

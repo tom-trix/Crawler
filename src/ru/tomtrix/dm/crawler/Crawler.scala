@@ -1,17 +1,3 @@
-/**
- * ========== Libraries ==========
- * casbah-commons		=> MongoDB
- * casbah-core			=> MongoDB
- * casbah-gridfs		=> MongoDB
- * casbah-query			=> MongoDB
- * scalaj-collection	=> MongoDB
- * mongo-java-driver	=> MongoDB
- * joda-time			=> MongoDB
- * slf4j-api			=> MongoDB
- * jedis				=> RedisDB
- * snowball				=> Snowball
- * xpathparser			=> My xPath-Wrapper
- */
 package ru.tomtrix.dm.crawler
 
 import java.util.Date
@@ -30,13 +16,18 @@ object Crawler {
     /** Number of article till which we should crawl */
     val endArticle = 371500
 
+    /**
+     * @param i - article number
+     * @param xpath - xPath expression
+     * @return list of parsed paragraphs
+     */
     def parse(i: Int, xpath: String) = try {
         val x = XPathParser.getInstance.parseNodes("http://sport.rbc.ru/football/newsline/24/09/2012/" + i + ".shtml", xpath).toArray.toList map { _.asInstanceOf[DefaultElement].getText } filter (!_.trim.isEmpty)
         if (x(0).startsWith("Ресурс, который вы запросили, не найден на сервере")) None else Some(x)
     } catch { case e: Exception => None }
 
     def main(args: Array[String]): Unit = {
-        //манипуляции с БД
+        // database manipulations
         mongoDocs.remove(MongoDBObject.empty)
         mongoDocs.ensureIndex("article")
         mongoDocs.ensureIndex("date")
@@ -45,23 +36,23 @@ object Crawler {
         mongoWords.remove(MongoDBObject.empty)
         mongoWords.ensureIndex("word")
 
-        //запускаем паука
+        // launch the crawler
         val s = """//*[@id="window"]/div/div[2]/div[1]/div/div"""
         val xpath = List("[2]/*", "[3]/*", "[4]") map (s + _)
         for {
             i <- startArticle to endArticle
-            docs <- parse(i, xpath(0)) 		//список абзацев статьи
-            tags <- parse(i, xpath(1))		//список тегов
-            prse <- parse(i, xpath(2))		//дата
-            date <- Some(prse(0) split (" "))
+            docs <- parse(i, xpath(0)) 			//list of paragraphs of the article
+            tags <- parse(i, xpath(1)) 			//list of tags
+            prse <- parse(i, xpath(2)) 			//date
+            date <- Some(prse(0) split (" "))	//split date
         } yield {
-            //добавляем статью в коллекцию документов
+            // add the article to "documents"
             mongoDocs.insert(MongoDBObject("article" -> i, "doc" -> docs, "tags" -> tags, "date" -> new Date(date(2).toInt - 1900, months indexOf stem(date(1)), date(0) toInt)))
-            //строим обратный индекс для ключевых слов
+            // build a Reverse Index for words
             for {
                 keyword <- tags map (_.trim toLowerCase) filter (!_.isEmpty)
             } yield mongoKeywords.update(MongoDBObject("keyword" -> stem(keyword)), $addToSet("docs" -> i), true, false)
-            //строим обратный индекс для всех слов
+            // build a Reverse Index for keywords
             for {
                 sentence <- docs
                 word <- sentence.split(splitRegex) map (_.trim toLowerCase) filter (t => !t.isEmpty && !stopWords.contains(t))
